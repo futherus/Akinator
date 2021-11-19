@@ -47,7 +47,7 @@ R"(
 </html>
 )";
 
-static FILE* DUMP_STREAM = nullptr;
+static FILE* DUMP_STREAM       = nullptr;
 static FILE* TEMP_GRAPH_STREAM = nullptr;
 
 static long DUMP_ITERATION = 0;
@@ -62,17 +62,16 @@ static char* graphviz_png_()
 
 #define PRINT(format, ...) fprintf(stream, format, ##__VA_ARGS__)
 
-static void tree_print_node_(Tree* tree, ptrdiff_t indx)
+static void tree_print_node_(Tree* tree, Node* node)
 {
     FILE* stream = TEMP_GRAPH_STREAM;
-    Node* node   = tree_get(tree, indx);
 
     PRINT("node%p[label = \"%s\"];\n", node, node->data);
     
-    if(node->left  != INVLD_INDX)
-        PRINT("node%p -> node%p;\n", node, tree_get(tree, node->left));
-    if(node->right != INVLD_INDX)
-        PRINT("node%p -> node%p;\n", node, tree_get(tree, node->right));
+    if(node->left  != nullptr)
+        PRINT("node%p -> node%p;\n", node, node->left);
+    if(node->right != nullptr)
+        PRINT("node%p -> node%p;\n", node, node->right);
 }
 
 static void tree_graph_dump_(Tree* tree)
