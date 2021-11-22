@@ -1,0 +1,76 @@
+
+digraph G{
+    graph [dpi = 100];
+    bgcolor = "#2F353B";
+    ranksep = 1;
+    edge[minlen = 3, arrowsize = 2, penwidth = 1.5, color = green];
+    node[shape = rectangle, style = "filled, rounded", fillcolor = "#C5D0E6", fontsize = 30,
+         color = "#C5D0E6", penwidth = 3];
+node000001c5d6936fa0[label = "?животное
+
+000001c5d6936fa0", color = blue];
+node000001c5d6936fa0 -> node000001c5d69370c0;
+node000001c5d6936fa0 -> node000001c5d6936fb8;
+node000001c5d6936fb8[label = "?живет в болоте
+
+000001c5d6936fb8", color = blue];
+node000001c5d6936fb8 -> node000001c5d6937048;
+node000001c5d6936fb8 -> node000001c5d6936fd0;
+node000001c5d6936fd0[label = "?сбрасывает кожу
+
+000001c5d6936fd0", color = blue];
+node000001c5d6936fd0 -> node000001c5d6937030;
+node000001c5d6936fd0 -> node000001c5d6936fe8;
+node000001c5d6936fe8[label = "?любит аннотации
+
+000001c5d6936fe8", color = blue];
+node000001c5d6936fe8 -> node000001c5d6937018;
+node000001c5d6936fe8 -> node000001c5d6937000;
+node000001c5d6937000[label = "Алябьева
+
+000001c5d6937000", color = red];
+node000001c5d6937018[label = "змея
+
+000001c5d6937018", color = red];
+node000001c5d6937030[label = "лягушка
+
+000001c5d6937030", color = red];
+node000001c5d6937048[label = "?королевна
+
+000001c5d6937048", color = blue];
+node000001c5d6937048 -> node000001c5d6937078;
+node000001c5d6937048 -> node000001c5d6937060;
+node000001c5d6937060[label = "Полторашка
+
+000001c5d6937060", color = red];
+node000001c5d6937078[label = "?рыжая
+
+000001c5d6937078", color = blue];
+node000001c5d6937078 -> node000001c5d69370a8;
+node000001c5d6937078 -> node000001c5d6937090;
+node000001c5d6937090[label = "лиса
+
+000001c5d6937090", color = red];
+node000001c5d69370a8[label = "кит
+
+000001c5d69370a8", color = red];
+node000001c5d69370c0[label = "?ведет матан
+
+000001c5d69370c0", color = blue];
+node000001c5d69370c0 -> node000001c5d69370f0;
+node000001c5d69370c0 -> node000001c5d69370d8;
+node000001c5d69370d8[label = "Петрович
+
+000001c5d69370d8", color = red];
+node000001c5d69370f0[label = "?все знают
+
+000001c5d69370f0", color = blue];
+node000001c5d69370f0 -> node000001c5d6937120;
+node000001c5d69370f0 -> node000001c5d6937108;
+node000001c5d6937108[label = "Овчос
+
+000001c5d6937108", color = red];
+node000001c5d6937120[label = "неовчос
+
+000001c5d6937120", color = red];
+}

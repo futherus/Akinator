@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <stdarg.h>
+
+static const size_t SYS_CMD_SIZE    = 256;
 
 static int file_sz_(const char filename[], size_t* sz)
 {
@@ -18,28 +21,58 @@ static int file_sz_(const char filename[], size_t* sz)
 
 database_err database_read(Database* db, const char infilename[])
 {
-    ASSERT$(db && infilename,
-            DATABASE_NULLPTR, return DATABASE_NULLPTR; )
+    ASSERT_RET$(db && infilename, DATABASE_NULLPTR);
 
     size_t file_sz = 0;
-    ASSERT$(!file_sz_(infilename, &file_sz),
-            DATABASE_READ_FAIL, return DATABASE_READ_FAIL; )
+    ASSERT_RET$(!file_sz_(infilename, &file_sz), DATABASE_READ_FAIL);
     
-    ASSERT$(file_sz > 0,
-            DATABASE_READ_EMPTY, return DATABASE_READ_EMPTY; )
+    ASSERT_RET$(file_sz > 0, DATABASE_READ_EMPTY);
     
-    FILE* stream = fopen(infilename, "r");
-    ASSERT$(stream,
-           DATABASE_READ_FAIL, return DATABASE_READ_FAIL; )
+    FILE* stream = fopen(infilename , "r");
+    ASSERT_RET$(stream, DATABASE_READ_FAIL);
 
-    ASSERT$(!array_init(&db->arr, file_sz),
-            DATABASE_BAD_ALLOC, return DATABASE_BAD_ALLOC; )
+    ASSERT_RET$(!array_init(&db->arr, file_sz), DATABASE_ARRAY_FAIL);
     
     size_t n_read = fread(db->arr.main_buffer, sizeof(char), file_sz, stream);
 
     if(n_read != file_sz)
-        ASSERT$(!ferror(stream),
-                DATABASE_READ_FAIL, return DATABASE_READ_FAIL; )
+        ASSERT_RET$(!ferror(stream), DATABASE_READ_FAIL);
+    
+    ASSERT_RET$(!fclose(stream), DATABASE_READ_FAIL);
+
+    return DATABASE_NOERR;
+}
+
+static FILE* DATABASE_WRITE_STREAM_ = nullptr;
+
+static void write_node_(Node* node, size_t depth)
+{
+    for(size_t iter = 0; iter < depth; iter++)
+        fprintf(DATABASE_WRITE_STREAM_, "    ");
+    
+    fprintf(DATABASE_WRITE_STREAM_, "%s\n", node->data);
+}
+
+database_err database_write(Database* db, const char outfilename[])
+{
+    ASSERT_RET$(db && outfilename, DATABASE_NULLPTR);
+
+    FILE* stream = fopen(outfilename , "w");
+    ASSERT_RET$(stream, DATABASE_WRITE_FAIL);
+    DATABASE_WRITE_STREAM_ = stream;
+
+    ASSERT_RET$(!tree_visitor(&db->tree, &write_node_), DATABASE_WRITE_FAIL);
+
+    ASSERT_RET$(!fclose(stream), DATABASE_WRITE_FAIL);
+
+    return DATABASE_NOERR;
+}
+
+database_err database_dstr(Database* db)
+{
+    ASSERT_RET$(!array_dstr(&db->arr), DATABASE_ARRAY_FAIL);
+
+    ASSERT_RET$(!tree_dstr(&db->tree), DATABASE_TREE_FAIL);
 
     return DATABASE_NOERR;
 }
@@ -52,8 +85,6 @@ static char* tokenize_(char* ptr)
         return nullptr;
     if(ptr)
         data = ptr;
-
-    printf("<%s>\n", data);
 
     char* frst_symb = nullptr;
     char* last_symb = nullptr;
@@ -98,7 +129,7 @@ static Node* setup_node_(Tree* tree)
 
     Node* node = nullptr;
     ASSERT$(!tree_add(tree, &node, data_ptr),
-            DATABASE_TREE_FAIL, return nullptr; )
+            DATABASE_TREE_FAIL, return nullptr; );
 
     if(data_ptr[0] != '?')
         return node;
@@ -114,38 +145,22 @@ static Node* setup_node_(Tree* tree)
 
 database_err database_setup_tree(Database* db)
 {
-    ASSERT$(db,
-            DATABASE_NULLPTR, return DATABASE_NULLPTR; )
+    ASSERT_RET$(db, DATABASE_NULLPTR);
 
     if(db->arr.main_buffer_sz == 0)
     {
-        ASSERT$(!tree_init(&db->tree, TREE_DFLT_ROOT),
-                DATABASE_TREE_FAIL, return DATABASE_TREE_FAIL; )
+        ASSERT_RET$(!tree_init(&db->tree, TREE_DFLT_ROOT), DATABASE_TREE_FAIL);
 
         return DATABASE_NOERR;
     }
 
     char* data_ptr = tokenize_(db->arr.main_buffer);
-    ASSERT$(data_ptr,
-            DATABASE_BAD_MAIN, return DATABASE_BAD_MAIN; )
+    ASSERT_RET$(data_ptr, DATABASE_BAD_MAIN);
     
-    ASSERT$(!tree_init(&db->tree, data_ptr),
-            DATABASE_TREE_FAIL, return DATABASE_TREE_FAIL; )
+    ASSERT_RET$(!tree_init(&db->tree, data_ptr), DATABASE_TREE_FAIL);
 
     db->tree.root->right = setup_node_(&db->tree);
     db->tree.root->left  = setup_node_(&db->tree);
-
-    return DATABASE_NOERR;
-}
-
-database_err database_add_node(Database* db, Node** base_ptr, const char data[])
-{
-    ASSERT$(db && base_ptr && data, DATABASE_NULLPTR, return DATABASE_NULLPTR; )
-
-    const char* ptr = nullptr;
-    ASSERT$(!array_add(&db->arr, &ptr, data), DATABASE_ARR_ADD_FAIL, return DATABASE_ARR_ADD_FAIL; )
-
-    ASSERT$(!tree_add(&db->tree, base_ptr, ptr), DATABASE_TREE_ADD_FAIL, return DATABASE_TREE_ADD_FAIL; )
 
     return DATABASE_NOERR;
 }
